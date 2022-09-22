@@ -7,22 +7,28 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 0;
-    public TextMeshProUGUI countText;
+    public TextMeshProUGUI moneyText;
+    public TextMeshProUGUI liveText;
     public GameObject winTextObject;
+    public GameObject deathTextObject;
 
     private Rigidbody rb;
-    private int count;
+    private int money;
+    private int live;
     private float movementX;
     private float movementY;
-    
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        count = 0;
+        money = 0;
+        live = 4;
 
-        SetCountText();
+        SetLiveText();
+        SetMoneyText();
         winTextObject.SetActive(false);
+        deathTextObject.SetActive(false);
     }
 
     void OnMove(InputValue movementValue)
@@ -33,16 +39,25 @@ public class PlayerController : MonoBehaviour
         movementY = movementVector.y;
     }
 
-    void SetCountText()
+    void SetLiveText()
     {
-        countText.text = "Money: $" + count.ToString();
-        if (count >= 24) 
+        liveText.text = "Live: " + live.ToString();
+        if (live == 0)
+        {
+            deathTextObject.SetActive(true);
+        }
+    }
+
+    void SetMoneyText()
+    {
+        moneyText.text = "Money: $" + money.ToString();
+        if (money >= 24 && live > 0)
         {
             winTextObject.SetActive(true);
         }
     }
 
-    void FixedUpdate() 
+    void FixedUpdate()
     {
         Vector3 movement = new Vector3(movementX, 0.0f, movementY);
 
@@ -53,9 +68,19 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("PickUp"))
         {
+            if (live >= 1)
+            {
+                other.gameObject.SetActive(false);
+                money = money + 1;
+                SetMoneyText();
+            }
+        }
+
+        if (other.gameObject.CompareTag("DeathCude"))
+        {
             other.gameObject.SetActive(false);
-            count = count + 1;
-            SetCountText();
+            live = live - 1;
+            SetLiveText();
         }
     }
 }
